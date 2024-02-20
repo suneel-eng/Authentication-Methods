@@ -1,19 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-
-	"database/sql"
-
-	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 
 	basicAuthentication "github.com/suneel-eng/Authentication-Methods/BasicAuthentication"
+	database "github.com/suneel-eng/Authentication-Methods/Database"
 	formAuthentication "github.com/suneel-eng/Authentication-Methods/FormAuthentication"
 	middleware "github.com/suneel-eng/Authentication-Methods/Middlewares"
 )
@@ -24,27 +20,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, dbErr := sql.Open(
-		"mysql",
-		fmt.Sprintf(
-			"%s:%s@(%s:%s)/%s?parseTime=true",
-			os.Getenv("DB_USERNAME"),
-			os.Getenv("DB_PASSWORD"),
-			os.Getenv("DB_HOST"),
-			os.Getenv("DB_PORT"),
-			os.Getenv("DB_NAME"),
-		),
-	)
-
-	if dbErr != nil {
-		log.Fatal("Error connection configuration", dbErr)
-	}
-
-	connectErr := db.Ping()
-
-	if connectErr != nil {
-		log.Fatal("Error connecting to database", connectErr)
-	}
+	database.InitDb()
 }
 
 func main() {
@@ -55,6 +31,7 @@ func main() {
 
 	basicAuthRouter.HandleFunc("/", middleware.Logger(basicAuthentication.BasicAuthPublicHandler)).Methods("POST", "GET")
 	basicAuthRouter.HandleFunc("/protected", middleware.Logger(basicAuthentication.BasicAuthProtectedHandler)).Methods("POST", "GET")
+	basicAuthRouter.HandleFunc("/signup", middleware.Logger(basicAuthentication.BasicAuthSignupHandler)).Methods("POST")
 
 	formAuthRouter := router.PathPrefix("/form-auth").Subrouter()
 

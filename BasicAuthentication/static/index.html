@@ -9,5 +9,20 @@
     <h1>Basic Authentication Demo</h1>
     <p>Now you are viewing a public page.</p>
     <p>Visit <a href="./protected">Protected page</a> to see how basic auth works.</p>
+    <div style="margin-top: 20px">
+        <form action="./signup" method="POST">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <div>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
