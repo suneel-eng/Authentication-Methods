@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -24,7 +26,7 @@ func init() {
 }
 
 func main() {
-
+	fmt.Printf("%v", time.Now())
 	router := mux.NewRouter()
 
 	basicAuthRouter := router.PathPrefix("/basic-auth").Subrouter()
@@ -37,6 +39,7 @@ func main() {
 
 	formAuthRouter.HandleFunc("/", middleware.Logger(formAuthentication.FormAuthPublicHandler)).Methods("GET")
 	formAuthRouter.HandleFunc("/protected", middleware.Logger(formAuthentication.FormAuthProtectedHandler)).Methods("GET", "POST")
+	formAuthRouter.HandleFunc("/signup", middleware.Logger(formAuthentication.FormAuthSignupHandler)).Methods("POST")
 
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
