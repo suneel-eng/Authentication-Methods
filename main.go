@@ -13,6 +13,7 @@ import (
 	basicAuthentication "github.com/suneel-eng/Authentication-Methods/BasicAuthentication"
 	database "github.com/suneel-eng/Authentication-Methods/Database"
 	formAuthentication "github.com/suneel-eng/Authentication-Methods/FormAuthentication"
+	jwtAuthentication "github.com/suneel-eng/Authentication-Methods/JWTAuthentication"
 	middleware "github.com/suneel-eng/Authentication-Methods/Middlewares"
 )
 
@@ -40,6 +41,12 @@ func main() {
 	formAuthRouter.HandleFunc("/", middleware.Logger(formAuthentication.FormAuthPublicHandler)).Methods("GET")
 	formAuthRouter.HandleFunc("/protected", middleware.Logger(formAuthentication.FormAuthProtectedHandler)).Methods("GET", "POST")
 	formAuthRouter.HandleFunc("/signup", middleware.Logger(formAuthentication.FormAuthSignupHandler)).Methods("POST")
+
+	jwtAuthRouter := router.PathPrefix("/jwt-auth").Subrouter()
+
+	jwtAuthRouter.HandleFunc("/login", middleware.Logger(jwtAuthentication.JWTAuthLoginHandler)).Methods("POST")
+	jwtAuthRouter.HandleFunc("/protected", middleware.Logger(jwtAuthentication.JWTAuthProtectedHandler)).Methods("GET")
+	jwtAuthRouter.HandleFunc("/signup", middleware.Logger(jwtAuthentication.JWTAuthSignupHandler)).Methods("POST")
 
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
