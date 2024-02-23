@@ -47,6 +47,7 @@ func main() {
 	jwtAuthRouter.HandleFunc("/login", middleware.Logger(jwtAuthentication.JWTAuthLoginHandler)).Methods("POST")
 	jwtAuthRouter.HandleFunc("/protected", middleware.Logger(jwtAuthentication.JWTAuthProtectedHandler)).Methods("GET")
 	jwtAuthRouter.HandleFunc("/signup", middleware.Logger(jwtAuthentication.JWTAuthSignupHandler)).Methods("POST")
+	jwtAuthRouter.HandleFunc("/refresh", middleware.Logger(jwtAuthentication.JWTAuthRefreshTokenHandler)).Methods("POST")
 
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
