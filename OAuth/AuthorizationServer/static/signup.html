@@ -55,18 +55,20 @@
 </head>
 <body>
   <div>
-    <h1>Printer</h1>
-    <form action="/login">
-      <h1>Login</h1>
-      <label for="email">Email:</label>
-      <input type="text" id="email" name="email" required>
+    <h1>Photos</h1>
+    <form action="/signup" method="post">
+      <h1>Signup</h1>
+      <label for="username">Email:</label>
+      <input type="text" id="username" name="username" required>
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
-      <button type="submit">Login</button>
+      <label for="confirm-password">Confirm Password:</label>
+      <input type="password" id="confirm-password" name="confirm-password" required>
+      <button type="submit">Signup</button>
     </form>
-    <button style="margin-top: 10px">
-      Login with Photos
-    </button>
+    <p style="margin-top: 10px">
+        Already have an account? <a href="/login">Login</a>
+    </p>
   </div>
 </body>
 </html>

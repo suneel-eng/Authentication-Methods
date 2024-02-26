@@ -54,19 +54,49 @@
   </style>
 </head>
 <body>
+  <script>
+    if(window.localStorage.getItem("access_token")) {
+      window.location = "http://localhost:8080"
+    }
+  </script>
   <div>
-    <h1>Printer</h1>
-    <form action="/login">
+    <h1>Photos</h1>
+    <form>
       <h1>Login</h1>
-      <label for="email">Email:</label>
-      <input type="text" id="email" name="email" required>
+      <label for="username">Email:</label>
+      <input type="text" id="username" name="username" required>
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
       <button type="submit">Login</button>
     </form>
-    <button style="margin-top: 10px">
-      Login with Photos
-    </button>
+    <p style="margin-top: 10px">
+        Don't have an account? <a href="/signup">Signup</a>
+    </p>
   </div>
+
+  <script>
+    const form = document.querySelector("form");
+    const button = document.querySelector("button")
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      button.innerText = "Loading...";
+
+      const formData = new FormData(e.target);
+
+      const response = await fetch("/login", {
+        method: "post",
+        body: formData
+      });
+
+      const data = await response.json();
+      window.localStorage.setItem("access_token", data.access_token)
+      window.localStorage.setItem("refresh_token", data.refresh_token)
+      window.localStorage.setItem("username", data.user_name)
+      button.innerText = "Signed in";
+
+      window.location = "http://localhost:8080"
+    })
+  </script>
 </body>
 </html>
