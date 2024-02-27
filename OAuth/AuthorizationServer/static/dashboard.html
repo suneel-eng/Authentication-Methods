@@ -14,9 +14,6 @@
       font-family: sans-serif;
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
       background-color: #f0f0f0;
     }
@@ -78,5 +75,28 @@
     <input type="text" id="redirect_url" name="redirect_url" placeholder="http://example.com/path">
     <button type="submit">Add Application</button>
   </form>
+  <script>
+    const form = document.querySelector("form");
+    const button = document.querySelector("button")
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      button.innerText = "Loading...";
+
+      const formData = new FormData(e.target);
+
+      const response = await fetch("/add-application", {
+        method: "post",
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+        }
+      });
+
+      button.innerText = "Application added successfully";
+
+      window.location.reload()
+    })
+  </script>
 </body>
 </html>

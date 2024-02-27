@@ -8,10 +8,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
+	"github.com/jaevor/go-nanoid"
 	"github.com/joho/godotenv"
 	database "github.com/suneel-eng/Authentication-Methods/Database"
 )
@@ -213,6 +215,95 @@ func main() {
 			return
 		}
 	}).Methods("GET", "POST")
+
+	router.HandleFunc("/add-application", func(w http.ResponseWriter, r *http.Request) {
+
+		auth := r.Header.Get("Authorization")
+
+		if bearerToken := strings.Split(auth, " "); bearerToken[0] == "Bearer" {
+			authToken := bearerToken[1]
+
+			token, tokenErr := jwt.Parse(authToken, func(t *jwt.Token) (interface{}, error) {
+				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("%v", "Unauthorized")
+				}
+
+				return []byte(os.Getenv("JWT_AUTH_ACCESS_SECRET_KEY")), nil
+			})
+
+			if tokenErr != nil {
+				http.Error(w, "Unauthorized token", http.StatusUnauthorized)
+				return
+			}
+
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+
+				if float64(time.Now().Unix()) > claims["exp"].(float64) {
+					http.Error(w, "Unauthorized token", http.StatusUnauthorized)
+					return
+				}
+
+				type Application struct {
+					AppName        string
+					AppOrigin      string
+					AppRedirectUrl string
+					AppIdentifier  string
+					AppSecret      string
+					AppOwnerId     string
+				}
+
+				var app Application
+
+				app.AppOwnerId = claims["sub"].(string)
+				app.AppName = r.FormValue("app_name")
+				app.AppOrigin = r.FormValue("allowed_origin")
+				app.AppRedirectUrl = r.FormValue("redirect_url")
+
+				identifier, idErr := nanoid.Standard(21)
+
+				if idErr != nil {
+					http.Error(w, idErr.Error(), http.StatusInternalServerError)
+				}
+
+				app.AppIdentifier = identifier()
+				app.AppSecret = identifier()
+
+				query := `
+					INSERT INTO oauth_server_photos_apps ( app_name, app_origin, app_redirect_url, app_identifier, app_secret, app_owner_id )
+					VALUES ( ?, ?, ?, ?, ?, ? )
+				`
+
+				_, err := database.Db.Exec(query, app.AppName, app.AppOrigin, app.AppRedirectUrl, app.AppIdentifier, app.AppSecret, app.AppOwnerId)
+
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+
+				fmt.Fprintf(w, "Success")
+			} else {
+				http.Error(w, "Unauthorized token", http.StatusUnauthorized)
+				return
+			}
+		}
+
+		http.Error(w, "Unauthorized token", http.StatusUnauthorized)
+
+	}).Methods("POST")
+
+	// Temporary Credential Request
+	router.HandleFunc("/intiate", func(w http.ResponseWriter, r *http.Request) {
+
+	})
+
+	// Resource Owner Authorization URI
+	router.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
+
+	})
+
+	// Token Request URI
+	router.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+
+	})
 
 	host := "localhost"
 	port := "8080"
